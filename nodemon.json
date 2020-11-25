@@ -4,6 +4,9 @@
     "DB_PASSWORD": "Pratik123",
     "DB_NAME": "mern",
     "GOOGLE_API_KEY": "...",
-    "JWT_KEY": "supersecret_dont_share"
+    "JWT_KEY": "supersecret_dont_share",
+    "CLOUD_NAME": "",
+    "API_KEY": "",
+    "API_SECRET": ""
   }
 }

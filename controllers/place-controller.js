@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 const User = require("../models/user");
 const Place = require("../models/place");
+const cloudinary = require("../middleware/cloudinaryConfig.js");
 const HttpError = require("../models/http-error");
 
 const getPlaceById = async (req, res, next) => {
@@ -54,10 +55,17 @@ const createPlace = async (req, res, next) => {
 
   const { title, description, address, creator } = req.body;
 
+  let cloudImage;
+  try {
+    cloudImage = await cloudinary.uploader.upload(req.file.path);
+  } catch (err) {
+    return next(new HttpError("Uploading image to cloud failed.", 404));
+  }
+
   const createdPlace = new Place({
     title,
     description,
-    image: req.file.path,
+    image: cloudImage.secure_url,
     location: {
       lat: 77.2,
       lng: 80,
