@@ -48,9 +48,11 @@ app.use((error, req, res, next) => {
     .json({ message: error.message || "An unknown error occured." });
 });
 
+const port = process.env.PORT || 5000;
+
 mongoose
   .connect(
     `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.t88jq.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
   )
-  .then(() => app.listen(process.env.PORT || 5000))
+  .then(() => app.listen(port))
   .catch((err) => console.log("Failed to connect to server."));
