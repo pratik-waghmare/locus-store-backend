@@ -7,6 +7,7 @@
     "JWT_KEY": "supersecret_dont_share",
     "CLOUD_NAME": "",
     "API_KEY": "",
-    "API_SECRET": ""
+    "API_SECRET": "",
+    "IMAGES_FOLDER_NAME": "LocusStore"
   }
 }
