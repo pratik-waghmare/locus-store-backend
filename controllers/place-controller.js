@@ -57,15 +57,21 @@ const createPlace = async (req, res, next) => {
 
   let cloudImage;
   try {
-    cloudImage = await cloudinary.uploader.upload(req.file.path);
+    cloudImage = await cloudinary.uploader.upload(req.file.path, {
+      upload_preset: "locus-store",
+    });
   } catch (err) {
     return next(new HttpError("Uploading image to cloud failed.", 404));
   }
 
+  const imageUrl = `v${cloudImage.version}/${cloudImage.public_id}`;
+
+  console.log(imageUrl);
+
   const createdPlace = new Place({
     title,
     description,
-    image: cloudImage.secure_url,
+    image: imageUrl,
     location: {
       lat: 77.2,
       lng: 80,
@@ -89,11 +95,7 @@ const createPlace = async (req, res, next) => {
     const sess = await mongoose.startSession();
 
     sess.startTransaction();
-    // console.log("hello");
-    // let newPlace = { name: "hello" };
     await createdPlace.save({ session: sess });
-    // await newPlace.save({ session: sess });
-    // console.log("hello");
     user.places.push(createdPlace);
 
     await user.save({ session: sess });
@@ -102,7 +104,6 @@ const createPlace = async (req, res, next) => {
   } catch {
     return next(new HttpError("Failed to create Place.", 404));
   }
-  console.log("Error found");
 
   res.status(201).json({ place: createdPlace });
 };

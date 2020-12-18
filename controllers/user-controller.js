@@ -93,18 +93,21 @@ const signup = async (req, res, next) => {
     return next(new HttpError("Uploading image to cloud failed.", 404));
   }
 
+  // console.log(cloudImage.public_id);
+  const imageUrl = `v${cloudImage.version}/${cloudImage.public_id}`;
+
   const newUser = new User({
     name,
     email,
-    image: cloudImage.secure_url,
+    image: imageUrl,
     password: hashedPassword,
     places: [],
   });
 
   try {
     await newUser.save();
-  } catch {
-    return next(new HttpError("Registration failed.", 404));
+  } catch (err) {
+    return next(new HttpError("Registration failed. Server issue", 404));
   }
 
   let token;
@@ -112,10 +115,13 @@ const signup = async (req, res, next) => {
     token = jwt.sign(
       { userId: newUser.id, email: newUser.email },
       process.env.JWT_KEY,
-      { expiresIn: "1h" }
+      {
+        expiresIn: "1h",
+      }
     );
-  } catch {
-    return next(new HttpError("Registration failed.", 403));
+  } catch (err) {
+    console.log(err);
+    return next(new HttpError("Token registration failed.", 403));
   }
 
   res.json({ userId: newUser.id, email: newUser.email, token: token });
