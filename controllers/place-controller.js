@@ -66,8 +66,6 @@ const createPlace = async (req, res, next) => {
 
   const imageUrl = `v${cloudImage.version}/${cloudImage.public_id}`;
 
-  console.log(imageUrl);
-
   const createdPlace = new Place({
     title,
     description,
@@ -112,7 +110,7 @@ const updatePlaceById = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    console.log(errors);
+    // console.log(errors);
     throw new Error("Try with valid data", 422);
   }
 

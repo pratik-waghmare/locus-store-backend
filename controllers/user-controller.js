@@ -93,7 +93,6 @@ const signup = async (req, res, next) => {
     return next(new HttpError("Uploading image to cloud failed.", 404));
   }
 
-  // console.log(cloudImage.public_id);
   const imageUrl = `v${cloudImage.version}/${cloudImage.public_id}`;
 
   const newUser = new User({
