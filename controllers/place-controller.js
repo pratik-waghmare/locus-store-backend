@@ -55,6 +55,8 @@ const createPlace = async (req, res, next) => {
 
   const { title, description, address, creator } = req.body;
 
+  console.log(req.file.path);
+
   let cloudImage;
   try {
     cloudImage = await cloudinary.uploader.upload(req.file.path, {
@@ -99,8 +101,9 @@ const createPlace = async (req, res, next) => {
     await user.save({ session: sess });
 
     await sess.commitTransaction();
-  } catch {
-    return next(new HttpError("Failed to create Place.", 404));
+  } catch (err) {
+    throw err;
+    return next(new HttpError("Failed to create place", 404));
   }
 
   res.status(201).json({ place: createdPlace });

@@ -1,5 +1,6 @@
+const locus = require("locus");
+
 const express = require("express");
-const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const path = require("path");
@@ -41,11 +42,14 @@ app.use((error, req, res, next) => {
 });
 
 const port = process.env.PORT || 5000;
+const url =
+  port == 5000
+    ? `mongodb://Pratik:27017,Pratik:27018,Pratik:27019/locus-store-db?replicaSet=rs`
+    : `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.t88jq.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
+// console.log(url);
 
 mongoose
-  .connect(
-    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.t88jq.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
-  )
+  .connect(url)
   .then(() =>
     app.listen(port, () => console.log("Server running at port " + port))
   )

@@ -18,6 +18,46 @@ const getUsers = async (req, res, next) => {
   res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 
+const getUserById = async (req, res, next) => {
+  const userId = req.params.uid;
+  let user;
+
+  try {
+    user = await User.findById(userId);
+  } catch (err) {
+    return next(new HttpError("User is not present in database"), 500);
+  }
+
+  res.json({ user: user.toObject({ getters: true }) });
+};
+
+const updateUserById = async (req, res, next) => {
+  const { name, email } = req.body;
+  const userId = req.params.uid;
+  let user;
+
+  try {
+    user = await User.findById(userId);
+  } catch (err) {
+    return next(new HttpError("Server failed"), 404);
+  }
+
+  if (!user) {
+    return next(new HttpError("User is not present in database"), 404);
+  }
+
+  user.name = name ? name : user.name;
+  user.email = email ? email : user.email;
+
+  try {
+    await user.save();
+  } catch (err) {
+    return next(new HttpError("Failed load update information"), 500);
+  }
+
+  res.json({ message: "user updated", user: user.toObject({ getters: true }) });
+};
+
 const login = async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -25,9 +65,7 @@ const login = async (req, res, next) => {
 
   try {
     identifiedUser = await User.findOne({ email: email });
-  } catch {
-    return next(new HttpError("User not found.", 404));
-  }
+  } catch {}
 
   if (!identifiedUser) {
     return next(new HttpError("Could not find user", 404));
@@ -54,6 +92,7 @@ const login = async (req, res, next) => {
   res.status(200).json({
     userId: identifiedUser.id,
     email: identifiedUser.email,
+    image: identifiedUser.image,
     token: token,
   });
 };
@@ -65,7 +104,7 @@ const signup = async (req, res, next) => {
     return next(new Error("Try with valid data", 422));
   }
 
-  const { name, email, password } = req.body;
+  const { name, email, image, password } = req.body;
 
   let existingUser;
 
@@ -86,19 +125,10 @@ const signup = async (req, res, next) => {
     return next(new HttpError("Encryption Failed.", 404));
   }
 
-  let cloudImage;
-  try {
-    cloudImage = await cloudinary.uploader.upload(req.file.path);
-  } catch (err) {
-    return next(new HttpError("Uploading image to cloud failed.", 404));
-  }
-
-  const imageUrl = `v${cloudImage.version}/${cloudImage.public_id}`;
-
   const newUser = new User({
     name,
     email,
-    image: imageUrl,
+    image,
     password: hashedPassword,
     places: [],
   });
@@ -123,9 +153,55 @@ const signup = async (req, res, next) => {
     return next(new HttpError("Token registration failed.", 403));
   }
 
-  res.json({ userId: newUser.id, email: newUser.email, token: token });
+  res.json({
+    userId: newUser.id,
+    email: newUser.email,
+    image: newUser.image,
+    token: token,
+  });
+};
+
+const updateImage = async (req, res, next) => {
+  const userId = req.params.uid;
+
+  let user;
+
+  try {
+    user = await User.findById(userId);
+  } catch (err) {
+    console.error(err);
+    return next(new HttpError("Database error", 500));
+  }
+
+  if (!user) {
+    return next(new HttpError("User doesn't exist", 404));
+  }
+
+  let cloudImage;
+  try {
+    cloudImage = await cloudinary.uploader.upload(req.file.path);
+  } catch (err) {
+    console.error(err);
+    return next(new HttpError("Uploading image to cloud failed.", 404));
+  }
+
+  let imageUrl = `v${cloudImage.version}/${cloudImage.public_id}`;
+  // console.log(`Image uploaded : ${imageUrl}`);
+  user.image = imageUrl;
+
+  try {
+    await user.save();
+  } catch (err) {
+    console.error(err);
+    return next(new HttpError("Database error", 500));
+  }
+
+  res.status(200).json({ message: "Image Updated successfully" });
 };
 
 exports.getUsers = getUsers;
+exports.getUserById = getUserById;
 exports.login = login;
 exports.signup = signup;
+exports.updateUserById = updateUserById;
+exports.updateImage = updateImage;

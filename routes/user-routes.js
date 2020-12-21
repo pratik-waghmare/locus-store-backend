@@ -8,6 +8,8 @@ const router = express.Router();
 
 router.get("/", userController.getUsers);
 
+router.get("/:uid", userController.getUserById);
+
 router.post("/login", userController.login);
 
 router.post(
@@ -20,5 +22,9 @@ router.post(
   ],
   userController.signup
 );
+
+router.post("/:uid", fileUpload.single("image"), userController.updateImage);
+
+router.patch("/:uid", userController.updateUserById);
 
 module.exports = router;

@@ -9,13 +9,13 @@ module.exports = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     if (!token) {
-      return next(new HttpError("Authorisation Failed", 403));
+      return next(new HttpError("Token not found", 403));
     }
 
     const decodeToken = jwt.verify(token, process.env.JWT_KEY);
     req.userData = { userId: decodeToken.userId };
     next();
   } catch (err) {
-    return next(new HttpError("Authorisation Failed", 403));
+    return next(new HttpError("Token is not correct", 403));
   }
 };

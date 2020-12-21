@@ -1,6 +1,8 @@
 /node_modules
 /uploads
 nodemon.json
+/data
+/.vscode
 
 # misc
 .DS_Store
