@@ -55,7 +55,9 @@ const updateUserById = async (req, res, next) => {
     return next(new HttpError("Failed load update information"), 500);
   }
 
-  res.json({ message: "user updated", user: user.toObject({ getters: true }) });
+  res.json({
+    message: "Details Updated",
+  });
 };
 
 const login = async (req, res, next) => {
@@ -99,12 +101,12 @@ const login = async (req, res, next) => {
 
 const signup = async (req, res, next) => {
   const errors = validationResult(req);
-  console.log(errors);
+
   if (!errors.isEmpty()) {
     return next(new Error("Try with valid data", 422));
   }
 
-  const { name, email, image, password } = req.body;
+  const { name, email, password } = req.body;
 
   let existingUser;
 
@@ -128,7 +130,8 @@ const signup = async (req, res, next) => {
   const newUser = new User({
     name,
     email,
-    image,
+    image: "",
+    cloudinary_id: "",
     password: hashedPassword,
     places: [],
   });
@@ -136,6 +139,7 @@ const signup = async (req, res, next) => {
   try {
     await newUser.save();
   } catch (err) {
+    console.error(err);
     return next(new HttpError("Registration failed. Server issue", 404));
   }
 
@@ -177,17 +181,27 @@ const updateImage = async (req, res, next) => {
     return next(new HttpError("User doesn't exist", 404));
   }
 
+  // Delete image from cloudinary
+
+  if (user.cloudinary_id !== "") {
+    try {
+      await cloudinary.uploader.destroy(user.cloudinary_id);
+    } catch (err) {
+      return next(new HttpError("Deleting image failed.", 500));
+    }
+  }
+
   let cloudImage;
   try {
     cloudImage = await cloudinary.uploader.upload(req.file.path);
   } catch (err) {
-    console.error(err);
     return next(new HttpError("Uploading image to cloud failed.", 404));
   }
 
   let imageUrl = `v${cloudImage.version}/${cloudImage.public_id}`;
-  // console.log(`Image uploaded : ${imageUrl}`);
+
   user.image = imageUrl;
+  user.cloudinary_id = cloudImage.public_id;
 
   try {
     await user.save();

@@ -55,8 +55,6 @@ const createPlace = async (req, res, next) => {
 
   const { title, description, address, creator } = req.body;
 
-  console.log(req.file.path);
-
   let cloudImage;
   try {
     cloudImage = await cloudinary.uploader.upload(req.file.path, {
@@ -67,11 +65,13 @@ const createPlace = async (req, res, next) => {
   }
 
   const imageUrl = `v${cloudImage.version}/${cloudImage.public_id}`;
+  const public_id = cloudImage.public_id;
 
   const createdPlace = new Place({
     title,
     description,
     image: imageUrl,
+    cloudinary_id: public_id,
     location: {
       lat: 77.2,
       lng: 80,
@@ -162,6 +162,13 @@ const deletePlace = async (req, res, next) => {
 
   if (place.creator.id !== req.userData.userId) {
     return next(new HttpError("You are not allowed to delete this.", 401));
+  }
+
+  // Delete image from cloudinary
+  try {
+    await cloudinary.uploader.destroy(place.cloudinary_id);
+  } catch (err) {
+    return next(new HttpError("Deleting image failed.", 500));
   }
 
   try {
