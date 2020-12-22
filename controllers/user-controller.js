@@ -166,6 +166,7 @@ const signup = async (req, res, next) => {
 };
 
 const updateImage = async (req, res, next) => {
+  console.log("UPDATE EXEC");
   const userId = req.params.uid;
 
   let user;
@@ -195,6 +196,7 @@ const updateImage = async (req, res, next) => {
   try {
     cloudImage = await cloudinary.uploader.upload(req.file.path);
   } catch (err) {
+    console.error(err);
     return next(new HttpError("Uploading image to cloud failed.", 404));
   }
 

@@ -22,12 +22,8 @@ router.post(
   userController.signup
 );
 
-router.post(
-  "/upload/:uid",
-  fileUpload.single("image"),
-  userController.updateImage
-);
+router.post("/:uid", fileUpload.single("image"), userController.updateImage);
 
-router.patch("/update/:uid", userController.updateUserById);
+router.patch("/:uid", userController.updateUserById);
 
 module.exports = router;
