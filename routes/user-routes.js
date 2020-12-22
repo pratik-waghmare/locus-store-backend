@@ -22,7 +22,7 @@ router.post(
   userController.signup
 );
 
-router.post("/:uid", fileUpload.single("image"), userController.updateImage);
+// router.post("/:uid", fileUpload.single("image"), userController.updateImage);
 
 router.patch("/:uid", userController.updateUserById);
 
