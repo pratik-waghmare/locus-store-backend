@@ -197,7 +197,7 @@ const updateImage = async (req, res, next) => {
     cloudImage = await cloudinary.uploader.upload(req.file.path);
   } catch (err) {
     console.error(err);
-    return next(new HttpError("Uploading image to cloud failed.", 404));
+    return next(new HttpError("Uploading imhhh.", 404));
   }
 
   let imageUrl = `v${cloudImage.version}/${cloudImage.public_id}`;
