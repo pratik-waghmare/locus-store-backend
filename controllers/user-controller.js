@@ -153,7 +153,7 @@ const signup = async (req, res, next) => {
       }
     );
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return next(new HttpError("Token registration failed.", 403));
   }
 
@@ -166,7 +166,7 @@ const signup = async (req, res, next) => {
 };
 
 const updateImage = async (req, res, next) => {
-  console.log("UPDATE EXEC");
+  // console.log("UPDATE EXEC");
   const userId = req.params.uid;
 
   let user;
@@ -197,7 +197,7 @@ const updateImage = async (req, res, next) => {
     cloudImage = await cloudinary.uploader.upload(req.file.path);
   } catch (err) {
     console.error(err);
-    return next(new HttpError("Uploading imhhh.", 404));
+    return next(new HttpError("Uploading Image to cloud failed.", 404));
   }
 
   let imageUrl = `v${cloudImage.version}/${cloudImage.public_id}`;
